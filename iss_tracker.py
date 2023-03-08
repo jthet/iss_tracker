@@ -1,7 +1,8 @@
 from flask import Flask, request
 import requests
 import xmltodict
-import math # NEED TO ADD SQRT TO SPEED CALC
+import math 
+from geopy.geocoders import Nominatim
 
 
 
@@ -28,7 +29,25 @@ def get_data() -> list:
     data = xmltodict.parse(response.text) # repsonse.text contains text xml Data
     return data['ndm']['oem']['body']['segment']['data']['stateVector']
 
+# Gets full data set (inlcudes comments, headers, etc.)
+def get_full_dataSet():
+    """
+    Retrieves the complete data sete from the nasa published ISS location coordinates, converts from XML to a dictionary, and returns the 
+    full NASA data set 
 
+    Route: None, only used to retreive data for other routes
+
+    Args:
+        None
+
+    Returns:
+        data (dict): the the entire NASA data set
+    """
+
+    url = 'https://nasa-public-data.s3.amazonaws.com/iss-coords/current/ISS_OEM/ISS.OEM_J2K_EPH.xml'
+    response = requests.get(url)
+    data = xmltodict.parse(response.text) # repsonse.text contains text xml Data
+    return data
 
 # Base url, returns dict of all data
 @app.route('/', methods = ['GET'])
@@ -44,6 +63,7 @@ def get_all() -> list:
     Returns:
         dataSet (dict): Dictionary of all epochs and corresponding state Vectors of the ISS
     """
+    global dataSet
     return dataSet
 
 @app.route('/epochs', methods = ['GET'])
@@ -59,7 +79,7 @@ def get_epochs() -> list:
     Returns:
         epochs (list): A list of all the epochs (time stamps) in the data set. 
     """
-
+    global dataSet
     all_epochs = []
     queried_epochs = []
 
@@ -103,6 +123,7 @@ def get_entry(epoch: str) -> dict:
         data[int(epoch)] (dict): returns the given index "epoch" of the data list from the full data set 
     """
     # <int:epoch>  works too but used try block just to test functionality 
+    global dataSet
     try: 
         epoch = int(epoch)
     except ValueError:
@@ -131,6 +152,7 @@ def speed_calc(epoch: str) -> dict:
     Returns:
         {"speed (km/s)" : speed} (dict): returns the speed of a given index "epoch"
     """
+    global dataSet
     try: 
         epoch = int(epoch)
     except ValueError:
@@ -143,8 +165,8 @@ def speed_calc(epoch: str) -> dict:
         return "Error: Epoch index out of data set range\n", 404
 
     veloList = get_velocity(epoch)
-    speed = sum([float(i)**2 for i in veloList])
-    return {"speed (km/s)" : sqrt(speed)}
+    speed = math.sqrt(sum([float(i)**2 for i in veloList]))
+    return {"speed (km/s)" : speed}
 
 @app.route('/epochs/<epoch>/position', methods = ['GET'])
 def get_position(epoch: str) -> dict:
@@ -161,7 +183,7 @@ def get_position(epoch: str) -> dict:
     Returns:
         position (dict): returns the X, Y, and Z positional coordinates of a given index "epoch"
     """
-
+    global dataSet
     try: 
         epoch = int(epoch)
     except ValueError:
@@ -175,7 +197,7 @@ def get_position(epoch: str) -> dict:
 
 
     epoch_state = get_entry(epoch)
-    position = {'X (km)': epoch_state['X']['#text'], 'Y (km)': epoch_state['Y']['#text'], 'Z (km)': epoch_state['Z']['#text']}
+    position = {'X': epoch_state['X']['#text'], 'Y': epoch_state['Y']['#text'], 'Z': epoch_state['Z']['#text']}
     return position
 
 @app.route('/epochs/<epoch>/velocity', methods = ['GET']) # Really just need this func for speed calc but added app route anyway
@@ -193,7 +215,7 @@ def get_velocity(epoch: str) -> list:
     Returns:
         velo (list): returns the X, Y, and Z velocity of a given index "epoch"
     """
-
+    global dataSet
     try: 
         epoch = int(epoch)
     except ValueError:
@@ -225,7 +247,7 @@ def get_help() -> str:
     Returns:
         help_message (string) : brief descriptions of all available routes and methods
     """
-
+    
     list_of_functions = ['get_data', 'get_all', 'get_epochs', 'get_entry', 'speed_calc', 'get_position', 'get_velocity', 'get_help', 'delete_data', 'post_data']
     
     help_message = '\nHERE IS A HELP MESSAGE FOR EVERY FUNCTION/ROUTE IN "iss_tracker.py"\n\n'
@@ -241,6 +263,7 @@ def delete_data() -> str:
     Deletes all data from the data set
     
     Route: <baseURL>/delete-data
+        example: 'curl -X DELETE localhost:5000/post-data'
 
     Args:
         NONE
@@ -249,8 +272,11 @@ def delete_data() -> str:
         (str) 'Data is deleted'
     """
     # USE: 'curl -X DELETE localhost:5000/post-data'
-    global dataSet
-    dataSet.clear()
+    try:
+        global dataSet
+        dataSet.clear()
+    except Exception:
+        return "Error: Data was not able to be deleted\n", 404
 
     return 'Data is deleted\n'
 
@@ -261,6 +287,7 @@ def post_data() -> str:
     Restores the data to the ISS dictionary
     
     Route: <baseURL>/post-data
+        example 'curl -X POST localhost:5000/post-data'
 
     Args:
         NONE
@@ -269,17 +296,128 @@ def post_data() -> str:
         (str) 'Data is posted'
     """
     # USE: 'curl -X POST localhost:5000/post-data'
+    try:
+        global dataSet
+        dataSet = get_data()
+    except Exception:
+        return "Error: Data was not able to be posted\n", 404
+
+    return "Data has been posted\n", 200
+
+
+@app.route('/comment', methods = ['GET']) 
+def get_comment() -> list:
+    """
+    Returns the ‘comment’ list object from the ISS data
+    
+    Route: <baseURL>/comment
+
+    Args:
+        NONE
+
+    Returns:
+        (list) comments: All the comments in the data set
+    """
+
+    try:
+        global fullSet
+        comments = fullSet['ndm']['oem']['body']['segment']['data']['COMMENT']
+    except KeyError as e:
+        return f'Key Error in Dict Key {e}: No Comments exist in DataSet\n', 404
+    except Exception:
+        return "Unknown Error\n", 418
+
+    return comments, 200
+
+@app.route('/header', methods = ['GET']) 
+def get_header() -> list:
+    """
+    Returns the ‘header’ dictionary object from the ISS data
+    
+    Route: <baseURL>/header
+
+    Args:
+        NONE
+
+    Returns:
+        (list) header: the ‘header’ dictionary object from the ISS data
+    """
+    try:
+        global fullSet
+        header = fullSet['ndm']['oem']['header']
+    except KeyError as e:
+        return f'Key Error in Dict Key {e}: No Headers exist in DataSet\n', 404
+    except Exception:
+        return "Unknown Error\n", 418
+        
+    return header, 200
+
+
+@app.route('/metadata', methods = ['GET']) 
+def get_metadata() -> list:
+    """
+    Returns the 'metadata' dictionary object from the ISS data
+    
+    Route: <baseURL>/metadata
+
+    Args:
+        NONE
+
+    Returns:
+        (list) metadata: the 'metadata' dictionary object from the ISS data
+    """
+    try:
+        global fullSet
+        metadata = fullSet['ndm']['oem']['body']['segment']['metadata']
+    except KeyError as e:
+        return f'Key Error in Dict Key {e}: No metadata exist in DataSet\n', 404
+    except Exception:
+        return "Unknown Error\n", 418
+        
+    return metadata, 200
+
+
+@app.route('/epochs/<epoch>/location', methods = ['GET'])
+def get_location(epoch: str) -> dict:
+    '''
+    '''
+    
+    
     global dataSet
-    dataSet = get_data()
 
-    return "Data has been posted\n"
+    MEAN_EARTH_RADIUS = 6371 # km
+    
+    epochPosition = get_position(epoch)
+    x = float(epochPosition['X'])
+    y = float(epochPosition['Y'])
+    z = float(epochPosition['Z'])
+
+    epochData = get_entry(epoch)
+    epochTime = epochData["EPOCH"] # Gives string represeting data time, we will indx string for hour and minutes data
+    hrs = int(epochTime[9] + epochTime[10])
+    mins = int(epochTime[12] + epochTime[13])
 
 
-#dataSet = {} # global Variable
+    
+    lat = math.degrees(math.atan2(z, math.sqrt(x**2 + y**2)))                
+    lon = math.degrees(math.atan2(y, x)) - ((hrs-12)+(mins/60))*(360/24) + 24
+    alt = math.sqrt(x**2 + y**2 + z**2) - MEAN_EARTH_RADIUS     
+
+
+    return str(lat) + ' ' + str(lon) + ' ' + str(alt) + " " + '\n'
+
+
+
+
+
+
+
+    
+
+
+# Global Variables
 dataSet = get_data()
-copyOfData = dataSet
-
-
+fullSet = get_full_dataSet()
 
 
 if __name__ == '__main__':
