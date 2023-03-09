@@ -4,6 +4,7 @@ import xmltodict
 import math 
 from geopy.geocoders import Nominatim
 import time
+import yaml
 
 
 
@@ -75,6 +76,7 @@ def get_epochs() -> list:
     Returns all the epochs in the data set, without the state Vectors. 
     
     Route: <baseURL>/epochs
+        Optional Route: '<baseURL>/epochs?limit=<some_Int>&offset=<some_Int>'
 
     Args:
         None
@@ -261,12 +263,15 @@ def get_help() -> str:
         help_message (string) : brief descriptions of all available routes and methods
     """
     
-    list_of_functions = ['get_data', 'get_all', 'get_epochs', 'get_entry', 'speed_calc', 'get_position', 'get_velocity', 'get_help', 'delete_data', 'post_data']
+    list_of_functions = ['get_data', 'get_all', 'get_epochs', 'get_entry', 'speed_calc', 'get_position', 'get_velocity', 'get_help', 'delete_data', 'post_data', 'get_comment', 'get_header', 'get_metadata', 'get_location', 'recent_data']
     
     help_message = '\nHERE IS A HELP MESSAGE FOR EVERY FUNCTION/ROUTE IN "iss_tracker.py"\n\n'
 
     for func in list_of_functions:
-        help_message = help_message + f'{func}:\n' + eval(func).__doc__ + '\n\n'
+        help_message = help_message + f'{func}:\n' + eval(func).__doc__
+        if func == 'get_epochs':
+            help_message = help_message + "\n    This function has query parameters 'limit' and 'offset' that affect the output by \n    changing the number of returned epochs and the starting point of the first returned epoch"
+        help_message = help_message + '\n\n'
 
     return help_message
 
@@ -454,6 +459,27 @@ def get_location(epoch: str) -> dict:
 
 @app.route('/now', methods = ['GET'])
 def recent_data() -> dict:
+    '''
+    Return latitude, longitude, altitude, and geoposition for Epoch that is nearest in time
+
+    Route: '<baseURL>/now'
+
+    Args:
+        NONE
+
+    Returns:
+        outputDict (dict): a dictionary containing the latitude, longitude, altitude, and geoposition
+        for the most recent Epoch.
+        
+        outputDict Format:
+            {
+                "closest epoch": ------, 
+                "seconds from now": -----, 
+                "location": -----,
+                "speed (km/s)": -----,
+                "velocity (km/s) (X, Y, Z)": ------
+            }
+    '''
     
     global dataSet
     MEAN_EARTH_RADIUS = 6371 #km
@@ -485,15 +511,26 @@ def recent_data() -> dict:
 
     return outputDict
 
-
-
-    
-
+def get_config():
+    default_config = {"debug": True}
+    try:
+        with open('config.yaml', 'r') as f:
+            return yaml.safe_load(f)
+    except Exception as e:
+        print(f"Couldn't load the config file; details: {e}")
+    # if we couldn't load the config file, return the default config
+    return default_config
 
 # Global Variables
 dataSet = get_data()
 fullSet = get_full_dataSet()
 
 
+
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    config = get_config()
+    if config.get('debug', True):
+        app.run(debug=True, host='0.0.0.0')
+    else:
+        app.run(host='0.0.0.0')

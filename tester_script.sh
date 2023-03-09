@@ -183,9 +183,14 @@ curl localhost:5000/epochs/$epochVar/location 2>> tester_script_stderr.txt 1> /d
 echo -e "\n" >> tester_script_output.txt 
 echo -e "\n" >> tester_script_stderr.txt
 
-
+### This takes really long, not sure why but excluding for now. 
 #echo -e "${Color2}Testing Route: '/now'${NC}"
 #echo -e "Testing Route: '/now'" >> tester_script_output.txt
 #echo -e "Testing Route: '/now'">> tester_script_stderr.txt
-#curl localhost:5000/now 1 >> tester_script_output.txt
-#curl localhost:5000/now 2 >> tester_script_stderr.txt
+#curl localhost:5000/now 1 >> tester_script_output.txt 2> /dev/null
+#curl localhost:5000/now 2 >> tester_script_stderr.txt 1> /dev/null
+
+# IDEA - put tester files in folder ? will it rewrite existing files?
+# mkdir tester_files
+# mv tester_script_output.txt tester_script_stderr.txt tester_files
+# 
