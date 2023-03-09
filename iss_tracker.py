@@ -3,6 +3,7 @@ import requests
 import xmltodict
 import math 
 from geopy.geocoders import Nominatim
+import time
 
 
 
@@ -64,6 +65,8 @@ def get_all() -> list:
         dataSet (dict): Dictionary of all epochs and corresponding state Vectors of the ISS
     """
     global dataSet
+    if not dataSet:
+        return "Data Set is empty \n"
     return dataSet
 
 @app.route('/epochs', methods = ['GET'])
@@ -80,6 +83,8 @@ def get_epochs() -> list:
         epochs (list): A list of all the epochs (time stamps) in the data set. 
     """
     global dataSet
+    if not dataSet:
+        return "Data Set is empty \n"
     all_epochs = []
     queried_epochs = []
 
@@ -124,6 +129,8 @@ def get_entry(epoch: str) -> dict:
     """
     # <int:epoch>  works too but used try block just to test functionality 
     global dataSet
+    if not dataSet:
+        return "Data Set is empty \n"
     try: 
         epoch = int(epoch)
     except ValueError:
@@ -153,6 +160,8 @@ def speed_calc(epoch: str) -> dict:
         {"speed (km/s)" : speed} (dict): returns the speed of a given index "epoch"
     """
     global dataSet
+    if not dataSet:
+        return "Data Set is empty \n"
     try: 
         epoch = int(epoch)
     except ValueError:
@@ -184,6 +193,8 @@ def get_position(epoch: str) -> dict:
         position (dict): returns the X, Y, and Z positional coordinates of a given index "epoch"
     """
     global dataSet
+    if not dataSet:
+        return "Data Set is empty \n"
     try: 
         epoch = int(epoch)
     except ValueError:
@@ -216,6 +227,8 @@ def get_velocity(epoch: str) -> list:
         velo (list): returns the X, Y, and Z velocity of a given index "epoch"
     """
     global dataSet
+    if not dataSet:
+        return "Data Set is empty \n"
     try: 
         epoch = int(epoch)
     except ValueError:
@@ -263,7 +276,7 @@ def delete_data() -> str:
     Deletes all data from the data set
     
     Route: <baseURL>/delete-data
-        example: 'curl -X DELETE localhost:5000/post-data'
+        example: 'curl -X DELETE localhost:5000/delete-data'
 
     Args:
         NONE
@@ -272,6 +285,7 @@ def delete_data() -> str:
         (str) 'Data is deleted'
     """
     # USE: 'curl -X DELETE localhost:5000/post-data'
+
     try:
         global dataSet
         dataSet.clear()
@@ -279,7 +293,6 @@ def delete_data() -> str:
         return "Error: Data was not able to be deleted\n", 404
 
     return 'Data is deleted\n'
-
 
 @app.route('/post-data', methods = ['POST']) 
 def post_data() -> str:
@@ -303,7 +316,6 @@ def post_data() -> str:
         return "Error: Data was not able to be posted\n", 404
 
     return "Data has been posted\n", 200
-
 
 @app.route('/comment', methods = ['GET']) 
 def get_comment() -> list:
@@ -340,7 +352,7 @@ def get_header() -> list:
         NONE
 
     Returns:
-        (list) header: the ‘header’ dictionary object from the ISS data
+        header (list): the ‘header’ dictionary object from the ISS data
     """
     try:
         global fullSet
@@ -351,7 +363,6 @@ def get_header() -> list:
         return "Unknown Error\n", 418
         
     return header, 200
-
 
 @app.route('/metadata', methods = ['GET']) 
 def get_metadata() -> list:
@@ -364,7 +375,7 @@ def get_metadata() -> list:
         NONE
 
     Returns:
-        (list) metadata: the 'metadata' dictionary object from the ISS data
+        metadata (list): the 'metadata' dictionary object from the ISS data
     """
     try:
         global fullSet
@@ -376,39 +387,103 @@ def get_metadata() -> list:
         
     return metadata, 200
 
-
 @app.route('/epochs/<epoch>/location', methods = ['GET'])
 def get_location(epoch: str) -> dict:
     '''
+    Returns latitude, longitude, altitude, and geoposition for a given epoch.
+
+    Route: <baseURL>/epochs/<epoch>/location
+
+    Args: 
+        epoch (string): returns a string representing the epoch entry index number as an int. 
+            - Note: epoch is given as a string but is converted to and used as a integer to index a list.
+
+    Returns:
+        outputDict (dict): A dictionary of the latitude, longitude, altitude, and geoposition of the given epoch. 
+
     '''
     
-    
     global dataSet
-
     MEAN_EARTH_RADIUS = 6371 # km
     
+
+    if not dataSet:
+        return "Data Set is empty \n"
+
+    try:    
+        epoch = int(epoch)
+    except ValueError:
+        return "Error: Epoch number must be an integer\n", 404
+
+    if epoch <= 0:
+        return "Epoch number must be a positive index (cannot be 0)\n", 404
+    
+    if epoch > len(dataSet):
+        return "Error: Epoch index out of data set range\n", 404
+    
+
+    # Getting variables
+    # position data
     epochPosition = get_position(epoch)
     x = float(epochPosition['X'])
     y = float(epochPosition['Y'])
     z = float(epochPosition['Z'])
 
+    # Time data
     epochData = get_entry(epoch)
     epochTime = epochData["EPOCH"] # Gives string represeting data time, we will indx string for hour and minutes data
     hrs = int(epochTime[9] + epochTime[10])
     mins = int(epochTime[12] + epochTime[13])
 
-
-    
+    # Calculation
     lat = math.degrees(math.atan2(z, math.sqrt(x**2 + y**2)))                
     lon = math.degrees(math.atan2(y, x)) - ((hrs-12)+(mins/60))*(360/24) + 24
     alt = math.sqrt(x**2 + y**2 + z**2) - MEAN_EARTH_RADIUS     
 
+    geocoder = Nominatim(user_agent='iss_tracker')
+    geoloc = geocoder.reverse((lat, lon), zoom=20, language='en')
+    
+    try:
+        geoPos = geoloc.address
+    except AttributeError:
+        geoPos = "Over the Ocean"
+    finally:
+        outputDict = {"Latitude": lat, "Longitude": lon, "Altitude": alt, "Geoposition": geoPos}
 
-    return str(lat) + ' ' + str(lon) + ' ' + str(alt) + " " + '\n'
+    return outputDict
+
+@app.route('/now', methods = ['GET'])
+def recent_data() -> dict:
+    
+    global dataSet
+    MEAN_EARTH_RADIUS = 6371 #km
+    current_time = time.time() # gives present time in seconds since unix epoch
+    smallest_dif = 100000000000 # arbitrary big number
 
 
+    if not dataSet:
+        return "Data Set is empty \n"
 
+    epoch_index_counter = 0
+    for epoch in dataSet:
+        epoch_index_counter += 1
+        time_epoch = time.mktime(time.strptime(epoch['EPOCH'][:-5], '%Y-%jT%H:%M:%S'))        # gives epoch (eg 2023-058T12:00:00.000Z) time in seconds since unix epoch
+        dif = current_time - time_epoch
+        if dif < smallest_dif:
+            smallest_dif = dif
+            closest_epoch = epoch
+            closest_epoch_index = epoch_index_counter
 
+    epoch_now = get_entry(closest_epoch_index)
+    
+    outputDict = {"closest epoch": epoch_now["EPOCH"], 
+    "seconds from now": smallest_dif, 
+    "location": get_location(closest_epoch_index),
+    "speed (km/s)": speed_calc(closest_epoch_index)['speed (km/s)'],
+    "velocity (km/s) (X, Y, Z)": get_velocity(closest_epoch_index)
+    }
+
+    return outputDict
 
 
 
