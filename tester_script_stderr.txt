@@ -25,87 +25,76 @@ Using epoch variable: 1
 Testing Route: '/epochs/1'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   351  100   351    0     0  39000      0 --:--:-- --:--:-- --:--:-- 39000
 
 
 *************************************************************************************
 Testing Route: '/epochs/1/speed'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    35  100    35    0     0   5000      0 --:--:-- --:--:-- --:--:--  5833
 
 
 *************************************************************************************
 Testing Route: '/epochs/1/position'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    78  100    78    0     0   7090      0 --:--:-- --:--:-- --:--:--  7090
 
 
 *************************************************************************************
 Testing Route: '/epochs/1/velocity'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    68  100    68    0     0   6800      0 --:--:-- --:--:-- --:--:--  6800
 
 
 *************************************************************************************
 Testing Route: '/help'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  5826  100  5826    0     0   632k      0 --:--:-- --:--:-- --:--:--  632k
 
 
 *************************************************************************************
 Testing Route: '/delete-data'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    16  100    16    0     0   1600      0 --:--:-- --:--:-- --:--:--  1600
 
 
 *************************************************************************************
 Testing Route: '/post-data'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0    21    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    21  100    21    0     0     23      0 --:--:-- --:--:-- --:--:--    23
 
 
 *************************************************************************************
 Testing Route: '/comment'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  1281  100  1281    0     0   625k      0 --:--:-- --:--:-- --:--:--  625k
 
 
 *************************************************************************************
 Testing Route: '/header'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    62  100    62    0     0  15500      0 --:--:-- --:--:-- --:--:-- 15500
 
 
 *************************************************************************************
 Testing Route: '/metadata'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   186  100   186    0     0  20666      0 --:--:-- --:--:-- --:--:-- 20666
 
 
 *************************************************************************************
 Testing Route: '/epochs/1/location'
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                  Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
-curl: (7) Failed to connect to localhost port 5000: Connection refused
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   124  100   124    0     0    252      0 --:--:-- --:--:-- --:--:--   252
 
 
