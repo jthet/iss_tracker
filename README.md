@@ -292,6 +292,20 @@ $ curl 'localhost:5000/epochs?limit=4&offset=20'
   "24": "2023-055T13:32:00.000Z"
 }
 ```
+# UNDER CONSTRUCTION
 
+Notes: 
+ - add all routes
+ - Instructures for use with docker-compose, Docker Image, and from `Flask --app iss_tracker --debug run` command
+ - add file summary for 
+     - config.yaml (new)
+     - Dockerfile (updated)
+     - docker-compose.yml (new)
+     - tester_script.sh (new)
+         - All test scripts
+
+To enter container that is made with "docker-compose up" from `docker-compose.yml`
+
+```$ docker exec -it iss_tracker_flask-app_1 /bin/bash```
 
 
