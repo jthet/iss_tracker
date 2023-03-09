@@ -482,26 +482,22 @@ def recent_data() -> dict:
     '''
     
     global dataSet
-    MEAN_EARTH_RADIUS = 6371 #km
-    current_time = time.time() # gives present time in seconds since unix epoch
-    smallest_dif = 100000000000 # arbitrary big number
-
-
     if not dataSet:
         return "Data Set is empty \n"
 
-    epoch_index_counter = 0
-    for epoch in dataSet:
-        epoch_index_counter += 1
-        time_epoch = time.mktime(time.strptime(epoch['EPOCH'][:-5], '%Y-%jT%H:%M:%S'))        # gives epoch (eg 2023-058T12:00:00.000Z) time in seconds since unix epoch
-        dif = current_time - time_epoch
-        if dif < smallest_dif:
+    current_time = time.time() # gives present time in seconds since unix epoch
+    smallest_dif = 50000 # arbitrary big number (epochs are 4 min apart, answer should be much less than 50000 sec)
+    counter = 0
+    for ep in dataSet:
+        counter += 1 # indexing iteration 
+        time_epoch = time.mktime(time.strptime(ep['EPOCH'][:-5], '%Y-%jT%H:%M:%S'))        # gives epoch (eg 2023-058T12:00:00.000Z) time in seconds since unix epoch
+        dif = abs(time_epoch - current_time)
+        if dif <= smallest_dif:
+            closest_epoch_index = counter # gives index of epoch 
             smallest_dif = dif
-            closest_epoch = epoch
-            closest_epoch_index = epoch_index_counter
 
     epoch_now = get_entry(closest_epoch_index)
-    
+
     outputDict = {"closest epoch": epoch_now["EPOCH"], 
     "seconds from now": smallest_dif, 
     "location": get_location(closest_epoch_index),
@@ -524,8 +520,6 @@ def get_config():
 # Global Variables
 dataSet = get_data()
 fullSet = get_full_dataSet()
-
-
 
 
 if __name__ == '__main__':
