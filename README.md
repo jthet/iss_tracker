@@ -138,7 +138,7 @@ jthet/iss_tracker        1.0        2883079fad18   About a minute ago   928MB
 ```
 Run the image with the following:
 ```
-$ docker run -it --rm -p 5000:5000 jthet/iss_tracker:hw05
+$ docker run -it --rm -p 5000:5000 jthet/iss_tracker:1.0
  * Serving Flask app 'iss_tracker'
  * Debug mode: on
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
@@ -173,7 +173,7 @@ Press CTRL+C to quit
 After completing any of methods from the "instructions and installation" section you should see the following output prompt:
 
 ```
-$ docker run -it --rm -p 5000:5000 jthet/iss_tracker:hw05
+$ docker run -it --rm -p 5000:5000 jthet/iss_tracker:1.0
  * Serving Flask app 'iss_tracker'
  * Debug mode: on
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
