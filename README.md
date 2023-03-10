@@ -27,7 +27,7 @@ The routes and returns are as follows:
 | `/post-data`  | Reload the dictionary object with data from the web |
 | `/comment`  | Return ‘comment’ list object from ISS data |
 | `/header`  | Return ‘header’ dict object from ISS data |
-| `/metadatea`  | Return ‘metadata’ dict object from ISS data |
+| `/metadata`  | Return ‘metadata’ dict object from ISS data |
 | `/epochs/<epoch>/location`| Return latitude, longitude, altitude, and geoposition for given Epoch |
 | `/now`  | Return latitude, longitude, altidue, and geoposition for Epoch that is nearest in time |
 
