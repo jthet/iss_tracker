@@ -41,7 +41,7 @@ The routes and returns are as follows:
  
 `docker-compose.yml`: YAML file that automates deployment of the flask App.
  
-`config.yaml`: YAML file that allows configurations of flask app deployment, in particular, turning "Debug" mode onn/off.
+`config.yaml`: YAML file that allows configurations of flask app deployment, in particular, turning "Debug" mode on/off.
  
 `tester_script.sh`: bash script that executes all routes in `iss_tracker.py` and outputs the stdout and stderr output in the `tester_script_output.txt` and `tester_script_stderr.txt` files, respectively. This script also can take in a specific <epoch> input and is used to test the flask app for errors and to confirm errors are handled. 
 
